@@ -41,19 +41,16 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *mod
 	} else {
 		templateCache, err = CreateTemplateCache()
 		if err != nil {
-			log.Println("Error creating template cache 44:", err)
 			return err
 		}
 	}
 
 	if len(templateCache) == 0 {
-		log.Println("Error creating template cache 50:", err)
 		return errors.New("no templates in cache")
 	}
 	//get template from cache
 	curentTemplate, ok := templateCache[tmpl]
 	if !ok {
-		log.Println("Error creating template cache 56:", err)
 		return errors.New("could not get template from cache")
 	}
 
@@ -82,11 +79,9 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 	//get all files named *.page.tmpl from templates
 	pages, err := filepath.Glob(fmt.Sprintf("%s*.page.tmpl", templatePath))
 	if err != nil {
-		log.Println("Error creating template cache 85:", err)
 		return templateCache, err
 	}
 	if len(pages) == 0 {
-		log.Println("Error creating template cache 89:", err)
 		return templateCache, nil // no templates found
 	}
 	//range through pages

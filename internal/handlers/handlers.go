@@ -50,3 +50,7 @@ func (m *Repository) Shipping(w http.ResponseWriter, r *http.Request){
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request){
 	render.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{})
 }
+
+func (m *Repository) Checkout(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w, r, "checkout.page.tmpl", &models.TemplateData{})
+}

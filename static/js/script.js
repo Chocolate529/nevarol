@@ -375,7 +375,7 @@ function checkoutCart() {
       // 🔥 Placeholder: redirect to a real checkout/payment page
       Swal.fire("Redirecting...", "Please wait while we take you to checkout.", "success");
       setTimeout(() => {
-        window.location.href = "checkout.html"; 
+        window.location.href = "/checkout"; 
       }, 1500);
     }
   });
