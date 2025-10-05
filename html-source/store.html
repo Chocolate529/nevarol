@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Store - Transpalet Wheels</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+     <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
+     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Transpalet Wheels</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="store.html">Store</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="shipping.html">Shipping</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contact.html">Contact</a>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-warning ms-2" id="open-cart">
+                Cart <span class="badge bg-danger" id="cart-count">0</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Store Layout -->
+    <div class="container my-5">
+      <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3 mb-4">
+          <div class="card p-3 shadow-sm">
+            <h5 class="mb-3">Filters</h5>
+            <input
+              type="text"
+              id="search-input"
+              class="form-control mb-3"
+              placeholder="Search wheels..."
+            />
+
+            <label class="form-label">Type</label>
+            <select id="filter-select" class="form-select mb-3">
+              <option value="all">All Types</option>
+              <option value="polyurethane">Polyurethane</option>
+              <option value="nylon">Nylon</option>
+              <option value="rubber">Rubber</option>
+            </select>
+
+            <label class="form-label">Price Range (€)</label>
+            <div class="range-slider px-1">
+              <input
+                type="range"
+                id="price-min"
+                class="form-range"
+                min="10"
+                max="30"
+                value="10"
+                step="0.5"
+              />
+              <input
+                type="range"
+                id="price-max"
+                class="form-range"
+                min="10"
+                max="30"
+                value="30"
+                step="0.5"
+              />
+            </div>
+            <div class="d-flex justify-content-between">
+              <small id="price-min-label">€10</small>
+              <small id="price-max-label">€30</small>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <main class="col-md-9">
+          <h2 class="mb-4">Our Wheels</h2>
+          <div class="row" id="product-list"></div>
+
+          <!-- Pagination -->
+          <nav>
+            <ul
+              class="pagination justify-content-center mt-4"
+              id="pagination"
+            ></ul>
+          </nav>
+        </main>
+      </div>
+    </div>
+
+    <!-- Cart Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cart-panel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Your Cart</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <div id="cart-items"></div>
+        <hr />
+        <div class="d-flex justify-content-between">
+          <strong>Total:</strong>
+          <strong id="cart-total">€0.00</strong>
+        </div>
+        <button class="btn btn-success w-100 mt-3" id="checkout-btn" onclick="checkoutCart()">
+          Checkout
+        </button>
+        <button class="btn btn-outline-danger w-100 mt-2" onclick="clearCart()">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3">
+      © 2025 Transpalet Wheels
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/notie"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </body>
+</html>

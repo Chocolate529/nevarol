@@ -1,0 +1,11 @@
+mode: set
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:21.13,24.16 2 0
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:24.16,26.3 1 0
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:30.2,39.16 4 0
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:39.16,41.3 1 0
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:44.18,60.16 10 1
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:60.16,62.3 1 0
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/main.go:63.2,70.12 6 1
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/middleware.go:11.45,21.2 3 1
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/middleware.go:24.50,27.2 1 1
+github.com/Chocolate529/BedAndBreakfastWebApp/cmd/web/routes.go:12.49,44.2 18 1

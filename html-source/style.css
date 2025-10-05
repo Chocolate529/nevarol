@@ -1,0 +1,181 @@
+body {
+  font-family: Inter, Arial, sans-serif;
+  margin: 0;
+  color: #111;
+  background: #fff;
+}
+header {
+  background: #fff;
+  border-bottom: 1px solid #e6e9ee;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+nav a {
+  margin: 0 10px;
+  color: #6b7280;
+  text-decoration: none;
+}
+main {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.grid {
+  display: grid;
+  gap: 16px;
+}
+.grid.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eef2f6;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.btn {
+  background: #0b6efd;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 0;
+  cursor: pointer;
+}
+.muted {
+  color: #6b7280;
+}
+footer {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+  border-top: 1px solid #eef2f6;
+  margin-top: 40px;
+}
+.cart-panel {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  width: 340px;
+  max-height: 70vh;
+  overflow: auto;
+  background: white;
+  border: 1px solid #e6e9ee;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(11, 18, 40, 0.08);
+  display: none;
+}
+.cart-count {
+  background: red;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-size: 12px;
+  position: absolute;
+  right: -8px;
+  top: -8px;
+}
+.cart-summary {
+  border-top: 1px solid #eef2f6;
+  padding-top: 8px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cart-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+.range-slider {
+  position: relative;
+  height: 2rem;
+}
+
+.range-slider input[type="range"] {
+  position: absolute;
+  pointer-events: none;
+  width: 100%;
+  height: 8px;
+  top: 8px;
+  background: none;
+}
+
+.range-slider input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all;
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #0d6efd;
+  border: 2px solid white;
+  cursor: pointer;
+  position: relative;
+  z-index: 3;
+}
+
+.range-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: all;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #0d6efd;
+  border: 2px solid white;
+  cursor: pointer;
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes jiggle {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.9); }
+  75% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.cart-animate {
+  animation: jiggle 0.5s ease;
+}
+/* Make Notie alerts smaller and offset below navbar */
+.notie-container {
+  font-size: 0.9rem !important;      /* smaller text */
+  padding: 6px 12px !important;      /* tighter padding */
+  top: 100px !important;              /* push it below navbar (adjust if navbar taller) */
+  max-width: 350px;                  /* smaller width */
+  left: auto !important;             /* remove full-width */
+  right: 20px !important;            /* stick to top-right corner */
+  border-radius: 8px;                /* rounded */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.notie-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(-20px);
+}
+.notie-container.shown {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
+.offcanvas-end {
+  width: 500px !important;  
+}
+
+@media (min-width: 992px) {
+  .offcanvas-end {
+    width: 600px !important;
+  }
+}

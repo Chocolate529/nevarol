@@ -1,0 +1,3 @@
+go build -o bookings.exe ./cmd/web/.
+@REM go test -v ./...
+bookings.exe

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Store - Transpalet Wheels</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navbar (same as index) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Transpalet Wheels</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="store.html">Store</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="shipping.html">Shipping</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item">
+            <button class="btn btn-warning ms-2" id="open-cart">
+              Cart <span class="badge bg-danger" id="cart-count">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-5">
+  <h2>Contact Us</h2>
+  <form class="row g-3" onsubmit="event.preventDefault();alert('Message sent (demo).');">
+    <div class="col-md-6">
+      <input type="text" class="form-control" placeholder="Name" required>
+    </div>
+    <div class="col-md-6">
+      <input type="email" class="form-control" placeholder="Email" required>
+    </div>
+    <div class="col-12">
+      <textarea class="form-control" rows="4" placeholder="Message" required></textarea>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </form>
+</main>
+
+  <!-- Cart Offcanvas -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cart-panel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Your Cart</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div id="cart-items"></div>
+      <hr>
+      <div class="d-flex justify-content-between">
+        <strong>Total:</strong>
+        <strong id="cart-total">€0.00</strong>
+      </div>
+      <button class="btn btn-success w-100 mt-3" id="checkout-btn">Checkout</button>
+      <button class="btn btn-outline-danger w-100 mt-2" onclick="clearCart()">Clear</button>
+    </div>
+  </div>
+
+  <footer class="bg-dark text-white text-center py-3">
+    © 2025 Transpalet Wheels
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
