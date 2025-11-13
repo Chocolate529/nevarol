@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Binaries
+app
+app.exe
+*.exe
+
+# Coverage
+coverage.out
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
