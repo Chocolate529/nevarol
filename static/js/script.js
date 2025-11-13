@@ -1,23 +1,10 @@
 
 
+// Products will be loaded from backend
+let products = [];
 
-const products = [
-  { id: 1, name: "Polyurethane Wheel Ø80mm", price: 19.99, type: "polyurethane", image: "images/wheel1.jpg" },
-  { id: 2, name: "Nylon Wheel Ø70mm", price: 14.50, type: "nylon", image: "images/wheel2.jpg" },
-  { id: 3, name: "Rubber Coated Wheel Ø90mm", price: 22.00, type: "rubber", image: "images/wheel3.jpg" },
-  { id: 4, name: "Polyurethane Wheel Ø100mm", price: 25.00, type: "polyurethane", image: "images/wheel4.jpg" },
-  { id: 5, name: "Nylon Wheel Ø85mm", price: 17.80, type: "nylon", image: "images/wheel5.jpg" },
-  { id: 6, name: "Rubber Wheel Ø75mm", price: 16.20, type: "rubber", image: "images/wheel6.jpg" },
-  { id: 7, name: "Polyurethane Wheel Ø110mm", price: 28.40, type: "polyurethane", image: "images/wheel7.jpg" },
-  { id: 8, name: "Nylon Heavy Duty Ø95mm", price: 20.00, type: "nylon", image: "images/wheel8.jpg" },
-  { id: 9, name: "Rubber Shock-Absorb Ø100mm", price: 27.50, type: "rubber", image: "images/wheel9.jpg" },
-  { id: 10, name: "Polyurethane Silent Ø90mm", price: 23.90, type: "polyurethane", image: "images/wheel10.jpg" }
-];
-
-
-
-
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+// Cart will be synced with backend
+let cart = [];
 
 let currentPage = 1;
 const itemsPerPage = 6;
@@ -26,7 +13,39 @@ let currentSearch = "";
 let priceMin = 10;
 let priceMax = 30;
 
+// Load products from backend
+async function loadProducts() {
+  try {
+    const response = await fetch('/api/products');
+    const data = await response.json();
+    if (data.ok && data.data) {
+      products = data.data;
+      renderProducts();
+    }
+  } catch (error) {
+    console.error('Error loading products:', error);
+  }
+}
 
+// Load cart from backend
+async function loadCart() {
+  try {
+    const response = await fetch('/api/cart');
+    const data = await response.json();
+    if (data.ok && data.data) {
+      cart = data.data;
+      renderCart();
+    } else {
+      // User not authenticated, use empty cart
+      cart = [];
+      renderCart();
+    }
+  } catch (error) {
+    console.error('Error loading cart:', error);
+    cart = [];
+    renderCart();
+  }
+}
 
 // Render products with filter/search/pagination
 function renderProducts() {
@@ -45,7 +64,7 @@ function renderProducts() {
 
   // Pagination
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  if (currentPage > totalPages) currentPage = 1;
+  if (currentPage > totalPages && totalPages > 0) currentPage = 1;
   const start = (currentPage - 1) * itemsPerPage;
   const paginated = filtered.slice(start, start + itemsPerPage);
 
@@ -55,7 +74,7 @@ function renderProducts() {
     card.className = "col-md-4 mb-4";
     card.innerHTML = `
       <div class="card h-100 shadow-sm">
-        <img src="${p.image}" class="card-img-top" alt="${p.name}">
+        <img src="./static/${p.image}" class="card-img-top" alt="${p.name}" onerror="this.src='./static/images/placeholder.jpg'">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">${p.name}</h5>
           <p class="card-text fw-bold">€${p.price.toFixed(2)}</p>
@@ -67,23 +86,25 @@ function renderProducts() {
   });
 
   // Render pagination buttons
-  pagination.innerHTML = "";
-  for (let i = 1; i <= totalPages; i++) {
-    const li = document.createElement("li");
-    li.className = `page-item ${i === currentPage ? "active" : ""}`;
-    li.innerHTML = `<button class="page-link">${i}</button>`;
-    li.addEventListener("click", () => {
-      currentPage = i;
-      renderProducts();
-    });
-    pagination.appendChild(li);
+  if (pagination) {
+    pagination.innerHTML = "";
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${i === currentPage ? "active" : ""}`;
+      li.innerHTML = `<button class="page-link">${i}</button>`;
+      li.addEventListener("click", () => {
+        currentPage = i;
+        renderProducts();
+      });
+      pagination.appendChild(li);
+    }
   }
 }
 
 // --- Filters ---
 document.addEventListener("DOMContentLoaded", () => {
-  renderProducts();
-  renderCart();
+  loadProducts();
+  loadCart();
   initCartToggle();
   
 
@@ -131,53 +152,25 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 });
 
-// --- CART FUNCTIONS (same as before) ---
-function addToCart(id) {
- const item = cart.find(i => i.id === id);
-  if (item) {
-    item.qty++;
-    notie.alert({ type: 'info', text: `${item.name} quantity updated (x${item.qty})`, time: 2 });
-  } else {
-    const product = products.find(p => p.id === id);
-    cart.push({ ...product, qty: 1 });
-    notie.alert({ type: 'success', text: `${product.name} added to cart!`, time: 2 });
-  }
-  saveCart();
-  renderCart();
+// --- CART FUNCTIONS with Backend API ---
+async function addToCart(id) {
+  try {
+    const response = await fetch('/api/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: id, quantity: 1 }),
+    });
 
-  // Animate cart badge
-  const badge = document.getElementById("cart-count");
-  if (badge) {
-    badge.classList.remove("cart-animate");
-    void badge.offsetWidth;
-    badge.classList.add("cart-animate");
-  }
-}
-function removeFromCart(id) {
-  const removed = cart.find(i => i.id === id);
-  if (!removed) return;
+    const data = await response.json();
 
-  swal.fire({
-    title: "Remove Item?",
-    text: `Are you sure you want to remove "${removed.name}" from the cart?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, remove it",
-    cancelButtonText: "Cancel"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // ✅ Update data and UI only if confirmed
-      cart = cart.filter(item => item.id !== id);
-      saveCart();
-      renderCart();
-
-      swal.fire({
-        title: "Removed!",
-        text: `"${removed.name}" was removed from your cart.`,
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
-      });
+    if (data.ok) {
+      await loadCart(); // Reload cart from backend
+      const product = products.find(p => p.id === id);
+      if (product) {
+        notie.alert({ type: 'success', text: `${product.name} added to cart!`, time: 2 });
+      }
 
       // Animate cart badge
       const badge = document.getElementById("cart-count");
@@ -186,87 +179,164 @@ function removeFromCart(id) {
         void badge.offsetWidth;
         badge.classList.add("cart-animate");
       }
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
-      // ❌ Cancel pressed — do nothing, no UI change
-      // Optionally: a subtle info message or no alert at all
-      // swalTheme.fire("Cancelled", "Item was not removed.", "info");
+    } else {
+      if (data.message === "Not authenticated") {
+        Swal.fire({
+          title: "Please log in",
+          text: "You need to log in to add items to cart.",
+          icon: "info",
+          confirmButtonText: "Go to Login"
+        }).then(() => {
+          window.location.href = "/login";
+        });
+      } else {
+        notie.alert({ type: 'error', text: data.message || 'Failed to add to cart', time: 3 });
+      }
     }
-  });
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    notie.alert({ type: 'error', text: 'Failed to add to cart', time: 3 });
+  }
 }
 
-function decreaseQty(id) {
-  const Toast = Swal.mixin({
-  toast: true,
-  position: "top",
-  showConfirmButton: false,
-  timer: 1500,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  }
-});
-  const item = cart.find(i => i.id === id);
-  if (!item) return;
+async function removeFromCart(itemId) {
+  const removed = cart.find(i => i.id === itemId);
+  if (!removed) return;
 
-  if (item.qty > 1) {
-    item.qty--;
-    Toast.fire({
-      icon: "success",
-      title: "Item removed succesfully"
-    });
-    saveCart();
-    renderCart();
-  } else {
-    Swal.fire({
-      title: "Remove Item?",
-      text: `Quantity is 1. Do you want to remove "${item.name}" from the cart?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, remove it",
-      cancelButtonText: "Cancel"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        cart = cart.filter(i => i.id !== id);
-        saveCart();
-        renderCart();
+  const result = await Swal.fire({
+    title: "Remove Item?",
+    text: `Are you sure you want to remove "${removed.product.name}" from the cart?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, remove it",
+    cancelButtonText: "Cancel"
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch(`/api/cart/${itemId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        await loadCart();
 
         Swal.fire({
           title: "Removed!",
-          text: `"${item.name}" was removed.`,
+          text: `"${removed.product.name}" was removed from your cart.`,
           icon: "success",
           timer: 1500,
           showConfirmButton: false
         });
+
+        // Animate cart badge
+        const badge = document.getElementById("cart-count");
+        if (badge) {
+          badge.classList.remove("cart-animate");
+          void badge.offsetWidth;
+          badge.classList.add("cart-animate");
+        }
+      } else {
+        notie.alert({ type: 'error', text: data.message || 'Failed to remove from cart', time: 3 });
       }
-    });
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      notie.alert({ type: 'error', text: 'Failed to remove from cart', time: 3 });
+    }
   }
 }
 
-function increaseQty(id){
+async function updateQuantity(itemId, newQty) {
+  try {
+    const response = await fetch(`/api/cart/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ quantity: newQty }),
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      await loadCart();
+      return true;
+    } else {
+      notie.alert({ type: 'error', text: data.message || 'Failed to update quantity', time: 3 });
+      return false;
+    }
+  } catch (error) {
+    console.error('Error updating quantity:', error);
+    notie.alert({ type: 'error', text: 'Failed to update quantity', time: 3 });
+    return false;
+  }
+}
+
+async function decreaseQty(itemId) {
   const Toast = Swal.mixin({
-  toast: true,
-  position: "top",
-  showConfirmButton: false,
-  timer: 1500,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  }
-});
-  const item = cart.find(i => i.id === id);
-  item.qty++;
-  Toast.fire({
-      icon: "success",
-      title: "Item added succesfully"
+    toast: true,
+    position: "top",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    }
+  });
+  
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+
+  if (item.quantity > 1) {
+    const success = await updateQuantity(itemId, item.quantity - 1);
+    if (success) {
+      Toast.fire({
+        icon: "success",
+        title: "Quantity decreased"
+      });
+    }
+  } else {
+    const result = await Swal.fire({
+      title: "Remove Item?",
+      text: `Quantity is 1. Do you want to remove "${item.product.name}" from the cart?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, remove it",
+      cancelButtonText: "Cancel"
     });
-  saveCart();
-  renderCart();
+
+    if (result.isConfirmed) {
+      await removeFromCart(itemId);
+    }
+  }
 }
 
-function saveCart() {
-  localStorage.setItem("cart", JSON.stringify(cart));
+async function increaseQty(itemId) {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    }
+  });
+  
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+
+  const success = await updateQuantity(itemId, item.quantity + 1);
+  if (success) {
+    Toast.fire({
+      icon: "success",
+      title: "Quantity increased"
+    });
+  }
 }
 
 function renderCart() {
@@ -281,15 +351,15 @@ function renderCart() {
   let count = 0;
 
   cart.forEach(item => {
-    total += item.price * item.qty;
-    count += item.qty;
+    total += item.product.price * item.quantity;
+    count += item.quantity;
 
     const div = document.createElement("div");
     div.className = "d-flex justify-content-between align-items-center mb-2 border-bottom pb-2";
     div.innerHTML = `
       <div>
-        <strong>${item.name}</strong><br>
-        <small>€${item.price.toFixed(2)} × ${item.qty}</small>
+        <strong>${item.product.name}</strong><br>
+        <small>€${item.product.price.toFixed(2)} × ${item.quantity}</small>
       </div>
       <div>
         <button class="btn btn-sm btn-outline-secondary me-1" onclick="decreaseQty(${item.id})">-</button>
@@ -300,83 +370,154 @@ function renderCart() {
     container.appendChild(div);
   });
 
-  totalEl.textContent = `€${total.toFixed(2)}`;
-  countEl.textContent = count;
+  if (totalEl) totalEl.textContent = `€${total.toFixed(2)}`;
+  if (countEl) countEl.textContent = count;
 }
 
-function clearCart() {
+async function clearCart() {
   if (cart.length === 0) {
-    swal.fire("Cart is already empty!", "", "info");
+    Swal.fire("Cart is already empty!", "", "info");
     return;
   }
 
-  swal.fire({
+  const result = await Swal.fire({
     title: "Clear Cart?",
     text: "All items will be removed. This action cannot be undone.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "Yes, clear it",
     cancelButtonText: "Cancel"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // ✅ Clear data only when confirmed
-      cart = [];
-      saveCart();
-      renderCart();
+  });
 
-      swal.fire({
-        title: "Cleared!",
-        text: "Your cart has been emptied.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'DELETE',
       });
 
-      const badge = document.getElementById("cart-count");
-      if (badge) {
-        badge.classList.remove("cart-animate");
-        void badge.offsetWidth;
-        badge.classList.add("cart-animate");
+      const data = await response.json();
+
+      if (data.ok) {
+        await loadCart();
+
+        Swal.fire({
+          title: "Cleared!",
+          text: "Your cart has been emptied.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        const badge = document.getElementById("cart-count");
+        if (badge) {
+          badge.classList.remove("cart-animate");
+          void badge.offsetWidth;
+          badge.classList.add("cart-animate");
+        }
+      } else {
+        notie.alert({ type: 'error', text: data.message || 'Failed to clear cart', time: 3 });
       }
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
-      // ❌ Do nothing
-      // swalTheme.fire("Cancelled", "Your cart was not cleared.", "info");
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      notie.alert({ type: 'error', text: 'Failed to clear cart', time: 3 });
     }
-  });
+  }
 }
 
 function initCartToggle() {
   const openCartBtn = document.getElementById("open-cart");
   const cartPanel = document.getElementById("cart-panel");
-
+  
   if (openCartBtn && cartPanel) {
-    const bsOffcanvas = new bootstrap.Offcanvas(cartPanel);
-    openCartBtn.addEventListener("click", () => bsOffcanvas.show());
+    openCartBtn.addEventListener("click", () => {
+      const bsOffcanvas = new bootstrap.Offcanvas(cartPanel);
+      bsOffcanvas.show();
+    });
   }
 }
 
-
-function checkoutCart() {
+async function checkoutCart() {
   if (cart.length === 0) {
-    Swal.fire("Your cart is empty!", "Add some wheels before checking out.", "info");
+    Swal.fire("Cart is empty!", "Add some items before checking out.", "info");
     return;
   }
 
-  Swal.fire({
-    title: "Proceed to Checkout?",
-    text: "You will be redirected to the checkout page to complete your order.",
-    icon: "question",
+  // Collect contact information using SweetAlert2 form
+  const { value: formValues } = await Swal.fire({
+    title: 'Checkout - Contact Information',
+    html:
+      '<input id="swal-name" class="swal2-input" placeholder="Your Name" required>' +
+      '<input id="swal-email" class="swal2-input" type="email" placeholder="Email Address" required>' +
+      '<input id="swal-phone" class="swal2-input" placeholder="Phone Number" required>' +
+      '<textarea id="swal-address" class="swal2-textarea" placeholder="Shipping Address" required></textarea>',
+    focusConfirm: false,
     showCancelButton: true,
-    confirmButtonColor: "#28a745",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Yes, checkout"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 🔥 Placeholder: redirect to a real checkout/payment page
-      Swal.fire("Redirecting...", "Please wait while we take you to checkout.", "success");
-      setTimeout(() => {
-        window.location.href = "/checkout"; 
-      }, 1500);
+    confirmButtonText: 'Place Order',
+    cancelButtonText: 'Cancel',
+    preConfirm: () => {
+      const name = document.getElementById('swal-name').value;
+      const email = document.getElementById('swal-email').value;
+      const phone = document.getElementById('swal-phone').value;
+      const address = document.getElementById('swal-address').value;
+      
+      if (!name || !email || !phone || !address) {
+        Swal.showValidationMessage('Please fill in all fields');
+        return false;
+      }
+      
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        Swal.showValidationMessage('Please enter a valid email address');
+        return false;
+      }
+      
+      return { name, email, phone, address };
     }
   });
+
+  if (formValues) {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer_name: formValues.name,
+          customer_email: formValues.email,
+          phone: formValues.phone,
+          address: formValues.address
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        await loadCart(); // Cart should be empty now
+
+        Swal.fire({
+          title: "Order Placed!",
+          html: `Your order #${data.data.id} has been placed successfully.<br><br>` +
+                `We will contact you at <strong>${formValues.email}</strong> to arrange delivery and payment.`,
+          icon: "success",
+          confirmButtonText: "OK"
+        }).then(() => {
+          // Close the cart panel
+          const cartPanel = document.getElementById("cart-panel");
+          if (cartPanel) {
+            const bsOffcanvas = bootstrap.Offcanvas.getInstance(cartPanel);
+            if (bsOffcanvas) {
+              bsOffcanvas.hide();
+            }
+          }
+        });
+      } else {
+        Swal.fire("Error", data.message || "Failed to place order", "error");
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      Swal.fire("Error", "Failed to place order. Please try again.", "error");
+    }
+  }
 }
