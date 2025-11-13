@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Chocolate529/nevarol/internal/email"
 	"github.com/Chocolate529/nevarol/internal/models"
 	"github.com/go-chi/chi/v5"
 )
@@ -222,7 +223,34 @@ func (m *Repository) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := m.App.DB.CreateOrder(userID)
+	// Parse contact information from request
+	var payload struct {
+		CustomerName  string `json:"customer_name"`
+		CustomerEmail string `json:"customer_email"`
+		Phone         string `json:"phone"`
+		Address       string `json:"address"`
+	}
+
+	err := readJSON(w, r, &payload)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, JSONResponse{
+			OK:      false,
+			Message: "Invalid request format",
+		})
+		return
+	}
+
+	// Validate contact information
+	if payload.CustomerName == "" || payload.CustomerEmail == "" || 
+	   payload.Phone == "" || payload.Address == "" {
+		writeJSON(w, http.StatusBadRequest, JSONResponse{
+			OK:      false,
+			Message: "All contact fields are required (name, email, phone, address)",
+		})
+		return
+	}
+
+	order, err := m.App.DB.CreateOrder(userID, payload.CustomerName, payload.CustomerEmail, payload.Phone, payload.Address)
 	if err != nil {
 		m.App.ErrorLog.Println("Error creating order:", err)
 		writeJSON(w, http.StatusInternalServerError, JSONResponse{
@@ -230,6 +258,43 @@ func (m *Repository) CreateOrder(w http.ResponseWriter, r *http.Request) {
 			Message: "Failed to create order",
 		})
 		return
+	}
+
+	// Send email notifications
+	if m.App.EmailConfig.IsConfigured() {
+		// Prepare order details for email
+		var emailItems []email.OrderItemDetail
+		for _, item := range order.Items {
+			emailItems = append(emailItems, email.OrderItemDetail{
+				ProductName: item.Product.Name,
+				Quantity:    item.Quantity,
+				Price:       item.Price,
+			})
+		}
+
+		orderDetails := email.OrderDetails{
+			OrderID:       order.ID,
+			CustomerEmail: order.CustomerEmail,
+			CustomerName:  order.CustomerName,
+			Phone:         order.Phone,
+			Address:       order.Address,
+			TotalPrice:    order.TotalPrice,
+			Items:         emailItems,
+		}
+
+		// Send notification to admin
+		err = m.App.EmailConfig.SendOrderNotification(orderDetails)
+		if err != nil {
+			m.App.ErrorLog.Println("Failed to send admin notification:", err)
+			// Don't fail the order if email fails
+		}
+
+		// Send confirmation to customer
+		err = m.App.EmailConfig.SendOrderConfirmation(orderDetails)
+		if err != nil {
+			m.App.ErrorLog.Println("Failed to send customer confirmation:", err)
+			// Don't fail the order if email fails
+		}
 	}
 
 	writeJSON(w, http.StatusCreated, JSONResponse{

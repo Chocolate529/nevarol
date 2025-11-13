@@ -8,7 +8,8 @@ A modern e-commerce web application for selling pallet truck wheels, built with 
 - **Database Persistence**: All data stored in PostgreSQL database
 - **Product Management**: Dynamic product catalog with filtering and search
 - **Shopping Cart**: Persistent cart with real-time updates
-- **Order Management**: Complete order processing and history
+- **Order Management**: Complete order processing and history with contact information
+- **Email Notifications**: Automatic order notifications to admin and customers (optional)
 - **Session Management**: Secure session handling with CSRF protection
 - **Rate Limiting**: Built-in rate limiting to prevent abuse
 - **Security Headers**: Comprehensive security headers (CSP, X-Frame-Options, etc.)
@@ -20,6 +21,7 @@ A modern e-commerce web application for selling pallet truck wheels, built with 
 - **Database**: PostgreSQL 15
 - **Router**: Chi v5
 - **Session**: SCS v2
+- **Email**: Go's built-in SMTP (supports Gmail, SendGrid, Mailgun, AWS SES)
 - **Frontend**: Bootstrap 5, Vanilla JavaScript
 - **Security**: bcrypt, CSRF protection (nosurf), rate limiting
 
@@ -28,6 +30,7 @@ A modern e-commerce web application for selling pallet truck wheels, built with 
 - Go 1.24.5 or later
 - PostgreSQL 12 or later
 - OR Docker and Docker Compose
+- (Optional) Email account for order notifications
 
 ## Installation
 
@@ -82,7 +85,14 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 DB_NAME=nevarol
 IN_PRODUCTION=false
+
+# Optional: Email notifications
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+ADMIN_EMAIL=your-admin-email@gmail.com
 ```
+
+**Note**: Email configuration is optional. See `EMAIL_SETUP.md` for detailed email setup instructions.
 
 5. Build and run the application:
 ```bash
@@ -92,13 +102,33 @@ go build -o app ./cmd/web/
 
 The application will automatically run database migrations on startup.
 
+## Email Notifications (Optional)
+
+The application can send email notifications when orders are placed:
+- **Admin receives**: Order details with customer contact information
+- **Customer receives**: Order confirmation with contact details
+
+**Email is completely optional** - orders work without email configuration.
+
+For setup instructions, see [EMAIL_SETUP.md](EMAIL_SETUP.md).
+
+Quick Gmail setup:
+1. Generate App Password at https://myaccount.google.com/apppasswords
+2. Add to `.env`:
+   ```env
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASSWORD=your-16-char-app-password
+   ADMIN_EMAIL=your-email@gmail.com
+   ```
+
 ## Usage
 
 1. Open your browser and navigate to `http://localhost:8080`
 2. Register a new account or login
 3. Browse products in the store
 4. Add items to your cart
-5. Proceed to checkout
+5. Click checkout and enter your contact information
+6. Receive order confirmation (via email if configured)
 
 ## Database Schema
 
@@ -106,7 +136,7 @@ The application uses the following tables:
 - `users`: User accounts with hashed passwords
 - `products`: Product catalog (pre-populated with 10 wheel products)
 - `cart_items`: Shopping cart items
-- `orders`: Completed orders
+- `orders`: Completed orders with customer contact information
 - `order_items`: Order line items
 
 ## Security Features

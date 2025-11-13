@@ -442,19 +442,53 @@ async function checkoutCart() {
     return;
   }
 
-  const result = await Swal.fire({
-    title: "Confirm Order",
-    text: "Do you want to place this order?",
-    icon: "question",
+  // Collect contact information using SweetAlert2 form
+  const { value: formValues } = await Swal.fire({
+    title: 'Checkout - Contact Information',
+    html:
+      '<input id="swal-name" class="swal2-input" placeholder="Your Name" required>' +
+      '<input id="swal-email" class="swal2-input" type="email" placeholder="Email Address" required>' +
+      '<input id="swal-phone" class="swal2-input" placeholder="Phone Number" required>' +
+      '<textarea id="swal-address" class="swal2-textarea" placeholder="Shipping Address" required></textarea>',
+    focusConfirm: false,
     showCancelButton: true,
-    confirmButtonText: "Yes, place order",
-    cancelButtonText: "Cancel"
+    confirmButtonText: 'Place Order',
+    cancelButtonText: 'Cancel',
+    preConfirm: () => {
+      const name = document.getElementById('swal-name').value;
+      const email = document.getElementById('swal-email').value;
+      const phone = document.getElementById('swal-phone').value;
+      const address = document.getElementById('swal-address').value;
+      
+      if (!name || !email || !phone || !address) {
+        Swal.showValidationMessage('Please fill in all fields');
+        return false;
+      }
+      
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        Swal.showValidationMessage('Please enter a valid email address');
+        return false;
+      }
+      
+      return { name, email, phone, address };
+    }
   });
 
-  if (result.isConfirmed) {
+  if (formValues) {
     try {
       const response = await fetch('/api/orders', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer_name: formValues.name,
+          customer_email: formValues.email,
+          phone: formValues.phone,
+          address: formValues.address
+        }),
       });
 
       const data = await response.json();
@@ -464,7 +498,8 @@ async function checkoutCart() {
 
         Swal.fire({
           title: "Order Placed!",
-          text: `Your order #${data.data.id} has been placed successfully.`,
+          html: `Your order #${data.data.id} has been placed successfully.<br><br>` +
+                `We will contact you at <strong>${formValues.email}</strong> to arrange delivery and payment.`,
           icon: "success",
           confirmButtonText: "OK"
         }).then(() => {
@@ -482,40 +517,7 @@ async function checkoutCart() {
       }
     } catch (error) {
       console.error('Error creating order:', error);
-      Swal.fire("Error", "Failed to place order", "error");
+      Swal.fire("Error", "Failed to place order. Please try again.", "error");
     }
   }
-}
-
-
-  if (openCartBtn && cartPanel) {
-    const bsOffcanvas = new bootstrap.Offcanvas(cartPanel);
-    openCartBtn.addEventListener("click", () => bsOffcanvas.show());
-  }
-}
-
-
-function checkoutCart() {
-  if (cart.length === 0) {
-    Swal.fire("Your cart is empty!", "Add some wheels before checking out.", "info");
-    return;
-  }
-
-  Swal.fire({
-    title: "Proceed to Checkout?",
-    text: "You will be redirected to the checkout page to complete your order.",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonColor: "#28a745",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Yes, checkout"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 🔥 Placeholder: redirect to a real checkout/payment page
-      Swal.fire("Redirecting...", "Please wait while we take you to checkout.", "success");
-      setTimeout(() => {
-        window.location.href = "/checkout"; 
-      }, 1500);
-    }
-  });
 }

@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 
+	"github.com/Chocolate529/nevarol/internal/email"
 	"github.com/Chocolate529/nevarol/internal/repository"
 	"github.com/alexedwards/scs/v2"
 )
@@ -18,4 +19,5 @@ type AppConfig struct {
 	InfoLog       *log.Logger
 	ErrorLog      *log.Logger
 	DB            *repository.DatabaseRepo
+	EmailConfig   *email.Config
 }

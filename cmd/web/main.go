@@ -10,6 +10,7 @@ import (
 
 	"github.com/Chocolate529/nevarol/internal/config"
 	"github.com/Chocolate529/nevarol/internal/driver"
+	"github.com/Chocolate529/nevarol/internal/email"
 	"github.com/Chocolate529/nevarol/internal/handlers"
 	"github.com/Chocolate529/nevarol/internal/helpers"
 	"github.com/Chocolate529/nevarol/internal/models"
@@ -104,6 +105,14 @@ func run() (*driver.DB, error) {
 
 	// Setup database repository
 	appConfig.DB = repository.NewDatabaseRepo(db.Pool)
+
+	// Setup email configuration
+	appConfig.EmailConfig = email.NewConfig()
+	if appConfig.EmailConfig.IsConfigured() {
+		appConfig.InfoLog.Println("Email notification system configured")
+	} else {
+		appConfig.InfoLog.Println("Email not configured - orders will be created without email notifications")
+	}
 
 	templateChache, err := render.CreateTemplateCache()
 	if err != nil {

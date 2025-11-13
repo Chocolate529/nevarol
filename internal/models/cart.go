@@ -11,12 +11,16 @@ type CartItem struct {
 
 // Order represents a completed order
 type Order struct {
-	ID         int       `json:"id"`
-	UserID     int       `json:"user_id"`
-	TotalPrice float64   `json:"total_price"`
-	Status     string    `json:"status"`
-	CreatedAt  string    `json:"created_at"`
-	Items      []OrderItem `json:"items,omitempty"`
+	ID            int         `json:"id"`
+	UserID        int         `json:"user_id"`
+	CustomerName  string      `json:"customer_name"`
+	CustomerEmail string      `json:"customer_email"`
+	Phone         string      `json:"phone"`
+	Address       string      `json:"address"`
+	TotalPrice    float64     `json:"total_price"`
+	Status        string      `json:"status"`
+	CreatedAt     string      `json:"created_at"`
+	Items         []OrderItem `json:"items,omitempty"`
 }
 
 // OrderItem represents a single item in an order

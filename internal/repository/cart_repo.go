@@ -106,8 +106,8 @@ func (m *DatabaseRepo) ClearCart(userID int) error {
 	return err
 }
 
-// CreateOrder creates a new order from cart items
-func (m *DatabaseRepo) CreateOrder(userID int) (*models.Order, error) {
+// CreateOrder creates a new order from cart items with customer contact info
+func (m *DatabaseRepo) CreateOrder(userID int, customerName, customerEmail, phone, address string) (*models.Order, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -118,9 +118,9 @@ func (m *DatabaseRepo) CreateOrder(userID int) (*models.Order, error) {
 	}
 	defer tx.Rollback(ctx)
 
-	// Get cart items
+	// Get cart items with product details
 	cartQuery := `
-		SELECT c.product_id, c.quantity, p.price
+		SELECT c.product_id, c.quantity, p.price, p.name
 		FROM cart_items c
 		JOIN products p ON c.product_id = p.id
 		WHERE c.user_id = $1
@@ -132,18 +132,20 @@ func (m *DatabaseRepo) CreateOrder(userID int) (*models.Order, error) {
 
 	var totalPrice float64
 	var orderItems []struct {
-		ProductID int
-		Quantity  int
-		Price     float64
+		ProductID   int
+		ProductName string
+		Quantity    int
+		Price       float64
 	}
 
 	for rows.Next() {
 		var item struct {
-			ProductID int
-			Quantity  int
-			Price     float64
+			ProductID   int
+			ProductName string
+			Quantity    int
+			Price       float64
 		}
-		err := rows.Scan(&item.ProductID, &item.Quantity, &item.Price)
+		err := rows.Scan(&item.ProductID, &item.Quantity, &item.Price, &item.ProductName)
 		if err != nil {
 			rows.Close()
 			return nil, err
@@ -153,14 +155,14 @@ func (m *DatabaseRepo) CreateOrder(userID int) (*models.Order, error) {
 	}
 	rows.Close()
 
-	// Create order
+	// Create order with contact information
 	var orderID int
 	orderQuery := `
-		INSERT INTO orders (user_id, total_price, status, created_at)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO orders (user_id, customer_name, customer_email, phone, address, total_price, status, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id
 	`
-	err = tx.QueryRow(ctx, orderQuery, userID, totalPrice, "pending", time.Now()).Scan(&orderID)
+	err = tx.QueryRow(ctx, orderQuery, userID, customerName, customerEmail, phone, address, totalPrice, "pending", time.Now()).Scan(&orderID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,11 +192,29 @@ func (m *DatabaseRepo) CreateOrder(userID int) (*models.Order, error) {
 		return nil, err
 	}
 
+	// Build order items for response
+	var items []models.OrderItem
+	for _, item := range orderItems {
+		items = append(items, models.OrderItem{
+			ProductID: item.ProductID,
+			Quantity:  item.Quantity,
+			Price:     item.Price,
+			Product: models.Product{
+				Name: item.ProductName,
+			},
+		})
+	}
+
 	return &models.Order{
-		ID:         orderID,
-		UserID:     userID,
-		TotalPrice: totalPrice,
-		Status:     "pending",
+		ID:            orderID,
+		UserID:        userID,
+		CustomerName:  customerName,
+		CustomerEmail: customerEmail,
+		Phone:         phone,
+		Address:       address,
+		TotalPrice:    totalPrice,
+		Status:        "pending",
+		Items:         items,
 	}, nil
 }
 
@@ -204,7 +224,7 @@ func (m *DatabaseRepo) GetUserOrders(userID int) ([]models.Order, error) {
 	defer cancel()
 
 	query := `
-		SELECT id, user_id, total_price, status, created_at
+		SELECT id, user_id, customer_name, customer_email, phone, address, total_price, status, created_at
 		FROM orders
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -219,7 +239,8 @@ func (m *DatabaseRepo) GetUserOrders(userID int) ([]models.Order, error) {
 	var orders []models.Order
 	for rows.Next() {
 		var order models.Order
-		err := rows.Scan(&order.ID, &order.UserID, &order.TotalPrice, &order.Status, &order.CreatedAt)
+		err := rows.Scan(&order.ID, &order.UserID, &order.CustomerName, &order.CustomerEmail, 
+			&order.Phone, &order.Address, &order.TotalPrice, &order.Status, &order.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
