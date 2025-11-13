@@ -1,20 +1,18 @@
 {{ define "base" }}
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Transpalet Wheels</title>
-  <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-   <link rel="stylesheet" href="./static/css/style.css" />
-     <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
-     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transpalet Wheels</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./static/css/style.css" />
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -25,10 +23,36 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/store">Store</a></li>
-          <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-          <li class="nav-item"><a class="nav-link" href="/shipping">Shipping</a></li>
-          <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="/store">Store</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shipping">Shipping</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/contact">Contact</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="bi bi-person"></i> Account
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+              <li>
+                <a class="dropdown-item" href="/login" id="loginLink">Login / Register</a>
+              </li>
+              <li>
+                <a class="dropdown-item d-none" href="/account" id="accountLink">My Account</a>
+              </li>
+              <li>
+                <a class="dropdown-item d-none" href="#" id="logoutLink">Logout</a>
+              </li>
+            </ul>
+          </li>
           <li class="nav-item">
             <button class="btn btn-warning ms-2" id="open-cart">
               Cart <span class="badge bg-danger" id="cart-count">0</span>
@@ -51,13 +75,17 @@
     </div>
     <div class="offcanvas-body">
       <div id="cart-items"></div>
-      <hr>
+      <hr />
       <div class="d-flex justify-content-between">
         <strong>Total:</strong>
         <strong id="cart-total">€0.00</strong>
       </div>
-      <button class="btn btn-success w-100 mt-3" id="checkout-btn" onclick="checkoutCart()">Checkout</button>
-      <button class="btn btn-outline-danger w-100 mt-2" onclick="clearCart()">Clear</button>
+      <button class="btn btn-success w-100 mt-3" id="checkout-btn" onclick="checkoutCart()">
+        Checkout
+      </button>
+      <button class="btn btn-outline-danger w-100 mt-2" onclick="clearCart()">
+        Clear
+      </button>
     </div>
   </div>
 
@@ -65,15 +93,15 @@
     © 2025 Transpalet Wheels
   </footer>
 
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./static/js/script.js"></script>
-    <script src="https://unpkg.com/notie"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./static/js/script.js"></script>
+  <script src="https://unpkg.com/notie"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    {{ block "scripts" .}}
+  {{ block "scripts" .}}
 
-    {{ end }}
-
+  {{ end }}
 </body>
+
 </html>
 {{ end }}

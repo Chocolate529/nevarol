@@ -54,3 +54,11 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request){
 func (m *Repository) Checkout(w http.ResponseWriter, r *http.Request){
 	render.RenderTemplate(w, r, "checkout.page.tmpl", &models.TemplateData{})
 }
+
+func (m *Repository) Account(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w, r, "account.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) Login(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w, r, "login.page.tmpl", &models.TemplateData{})
+}

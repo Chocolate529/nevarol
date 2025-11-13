@@ -1,0 +1,23 @@
+{{template "base" .}}
+
+{{define "content"}}
+<div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h3 class="card-title text-center mb-4">My Account</h3>
+            <div id="accountInfo" class="text-center"></div>
+            <hr>
+            <h5 class="mt-4 mb-3">Order History</h5>
+            <div id="orderHistory" class="text-muted">No orders yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{{end}}
+
+{{define "script"}}
+   <script src="./static/js/auth.js"></script>
+{{end}}

@@ -28,6 +28,8 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/shipping", handlers.Repo.Shipping)
 	mux.Get("/contact", handlers.Repo.Contact)
 	mux.Get("/checkout", handlers.Repo.Checkout)
+	mux.Get("/account", handlers.Repo.Account)
+	mux.Get("/login", handlers.Repo.Login)
 
 
 	fileServer := http.FileServer(http.Dir("./static/"))

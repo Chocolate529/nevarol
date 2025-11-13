@@ -1,3 +1,3 @@
-go build -o bookings.exe ./cmd/web/.
+go build -o app.exe ./cmd/web/.
 @REM go test -v ./...
-bookings.exe
+app.exe
