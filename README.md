@@ -189,6 +189,14 @@ To run tests:
 go test ./...
 ```
 
+### GoLand IDE with Docker
+
+If you're using GoLand IDE, see [GOLAND_DOCKER_SETUP.md](GOLAND_DOCKER_SETUP.md) for a comprehensive guide on:
+- Setting up GoLand with Docker
+- Running and debugging the application
+- Using database tools
+- Common workflows and troubleshooting
+
 ## Production Deployment
 
 For production deployment:
