@@ -10,23 +10,48 @@ A modern e-commerce web application for selling pallet truck wheels, built with 
 - **Shopping Cart**: Persistent cart with real-time updates
 - **Order Management**: Complete order processing and history
 - **Session Management**: Secure session handling with CSRF protection
+- **Rate Limiting**: Built-in rate limiting to prevent abuse
+- **Security Headers**: Comprehensive security headers (CSP, X-Frame-Options, etc.)
 - **Modern UI**: Responsive Bootstrap 5 interface
 
 ## Tech Stack
 
 - **Backend**: Go 1.24.5
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL 15
 - **Router**: Chi v5
 - **Session**: SCS v2
 - **Frontend**: Bootstrap 5, Vanilla JavaScript
-- **Security**: bcrypt, CSRF protection (nosurf)
+- **Security**: bcrypt, CSRF protection (nosurf), rate limiting
 
 ## Prerequisites
 
 - Go 1.24.5 or later
 - PostgreSQL 12 or later
+- OR Docker and Docker Compose
 
 ## Installation
+
+### Option 1: Using Docker (Recommended)
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Chocolate529/nevarol.git
+cd nevarol
+```
+
+2. Start the application using Docker Compose:
+```bash
+docker-compose up -d
+```
+
+The application will be available at `http://localhost:8080`
+
+To stop the application:
+```bash
+docker-compose down
+```
+
+### Option 2: Manual Installation
 
 1. Clone the repository:
 ```bash
@@ -79,19 +104,48 @@ The application will automatically run database migrations on startup.
 
 The application uses the following tables:
 - `users`: User accounts with hashed passwords
-- `products`: Product catalog
+- `products`: Product catalog (pre-populated with 10 wheel products)
 - `cart_items`: Shopping cart items
 - `orders`: Completed orders
 - `order_items`: Order line items
 
 ## Security Features
 
-- Password hashing with bcrypt (cost factor 12)
-- CSRF protection on all state-changing requests
-- Secure session cookies
-- Input validation and sanitization
-- SQL injection protection via parameterized queries
-- XSS protection
+- **Password Security**: bcrypt hashing with cost factor 12
+- **CSRF Protection**: Enabled on all state-changing requests
+- **Secure Cookies**: HttpOnly, SameSite, and Secure flags
+- **Rate Limiting**: 100 requests per minute per IP
+- **Security Headers**:
+  - X-Frame-Options: DENY (prevent clickjacking)
+  - X-Content-Type-Options: nosniff (prevent MIME sniffing)
+  - X-XSS-Protection: 1; mode=block
+  - Content-Security-Policy: Restrictive CSP
+  - Referrer-Policy: strict-origin-when-cross-origin
+- **Input Validation**: All user inputs validated and sanitized
+- **SQL Injection Protection**: Parameterized queries via pgx
+- **Session Security**: Secure session management with automatic cleanup
+
+## API Endpoints
+
+### Authentication
+- `POST /api/register` - Register a new user
+- `POST /api/login` - Login
+- `POST /api/logout` - Logout
+- `GET /api/user` - Get current user
+
+### Products
+- `GET /api/products` - Get all products
+
+### Cart
+- `GET /api/cart` - Get cart items
+- `POST /api/cart` - Add item to cart
+- `PUT /api/cart/{id}` - Update cart item quantity
+- `DELETE /api/cart/{id}` - Remove item from cart
+- `DELETE /api/cart` - Clear cart
+
+### Orders
+- `POST /api/orders` - Create order from cart
+- `GET /api/orders` - Get user's orders
 
 ## Development
 
@@ -99,6 +153,23 @@ To run in development mode:
 ```bash
 go run ./cmd/web/
 ```
+
+To run tests:
+```bash
+go test ./...
+```
+
+## Production Deployment
+
+For production deployment:
+
+1. Set `IN_PRODUCTION=true` in your environment
+2. Use HTTPS/TLS (required for secure cookies)
+3. Use strong database credentials
+4. Configure proper backup strategy for PostgreSQL
+5. Consider using a reverse proxy (nginx/Caddy) for additional security
+6. Enable database connection pooling settings as needed
+7. Monitor rate limits and adjust as necessary
 
 ## License
 

@@ -7,6 +7,7 @@ import (
 	"github.com/Chocolate529/nevarol/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/time/rate"
 )
 
 func routes(app *config.AppConfig) http.Handler {
@@ -17,7 +18,13 @@ func routes(app *config.AppConfig) http.Handler {
 
 	mux := chi.NewRouter()
 
+	// Create rate limiter: 100 requests per minute with burst of 200
+	rateLimiter := NewRateLimiter(rate.Limit(100.0/60.0), 200)
+	go rateLimiter.CleanupVisitors()
+
 	mux.Use(middleware.Recoverer)
+	mux.Use(SecurityHeaders)
+	mux.Use(RateLimit(rateLimiter))
 	// mux.Use(WriteToConsole)
 	mux.Use(NoSurf)
 	mux.Use(SessionLoad)
