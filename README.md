@@ -2,6 +2,15 @@
 
 A modern e-commerce web application for selling pallet truck wheels, built with Go and PostgreSQL.
 
+## 🎯 New to This Project?
+
+**Wondering about architecture and hosting?** See our comprehensive guides:
+
+- 📖 **[ARCHITECTURE_RECOMMENDATIONS.md](ARCHITECTURE_RECOMMENDATIONS.md)** - Should you use single-page or multi-page? What hosting to choose?
+- 🚀 **[HOSTING_GUIDE.md](HOSTING_GUIDE.md)** - Step-by-step deployment to Fly.io, Railway, or DigitalOcean
+- 📧 **[EMAIL_SETUP.md](EMAIL_SETUP.md)** - Configure order notifications
+- ✅ **[PRODUCTION_READINESS.md](PRODUCTION_READINESS.md)** - Pre-launch checklist
+
 ## Features
 
 - **Secure Authentication**: User registration and login with bcrypt password hashing
